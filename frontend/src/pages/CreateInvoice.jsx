@@ -355,6 +355,9 @@ function CreateInvoice() {
 
         ...form,
 
+        created_by:
+          localStorage.getItem("user_id"),
+
         frame_quantity:
           parseFloat(
             form.frame_quantity
@@ -391,7 +394,7 @@ function CreateInvoice() {
       );
 
       setPdfUrl(
-        `http://127.0.0.1:8000/media/${res.data.pdf}`
+        `http://localhost:8080/api/download-invoice/${res.data.invoice_id}`
       );
 
     } catch (err) {

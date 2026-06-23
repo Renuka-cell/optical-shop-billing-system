@@ -6,7 +6,8 @@ use App\Models\CustomerModel;
 use App\Models\InvoiceModel;
 use CodeIgniter\RESTful\ResourceController;
 use App\Models\ShopSettingsModel;
-use App\Libraries\PdfGenerator;
+use App\Libraries\MpdfGenerator;
+use App\Models\UserModel;
 
 class InvoiceController extends ResourceController
 {
@@ -71,15 +72,69 @@ class InvoiceController extends ResourceController
         }
 
         // INVOICE NUMBER
+
+        $lastInvoice = $invoiceModel
+            ->orderBy('id', 'DESC')
+            ->first();
+
+        log_message(
+            'error',
+            'LAST INVOICE = ' . json_encode($lastInvoice)
+        );
+
+        $sequence =
+            $lastInvoice
+            ? $lastInvoice['id'] + 1
+            : 1;
+
+        log_message(
+            'error',
+            'SEQUENCE = ' . $sequence
+        );
+
+        $currentYear = date('Y');
+
+        //$sequence = $invoiceModel->countAll() + 1;
+
         $invoiceNumber =
             'INV-' .
-            date('YmdHis');
+            $currentYear .
+            '-' .
+            str_pad(
+                $sequence,
+                3,
+                '0',
+                STR_PAD_LEFT
+            );
+
+        log_message(
+            'error',
+            'INVOICE NUMBER = ' . $invoiceNumber
+        );
+        
+        $createdBy = $data['created_by'] ?? 'null';
+        //$createdBy = 1;
+
+        /*$invoiceNumber =
+            'INV-' .
+            $currentYear .
+            '-' .
+            str_pad(
+                $sequence,
+                3,
+                '0',
+                STR_PAD_LEFT
+            );
+
+        dd($invoiceNumber);*/
 
         // SAVE INVOICE
         $invoiceId =
             $invoiceModel->insert([
 
                 'customer_id' => $customerId,
+
+                'created_by' => $createdBy,
 
                 'invoice_number' => $invoiceNumber,
 
@@ -320,6 +375,10 @@ class InvoiceController extends ResourceController
 
         $data = $this->request->getJSON(true);
 
+        $createdBy =
+            $data['created_by']
+            ?? 'Admin';
+
         $amount = (float)($data['amount'] ?? 0);
 
         if ($amount <= 0) {
@@ -391,93 +450,34 @@ class InvoiceController extends ResourceController
         $shop = $shopModel
             ->first();
 
-        $pdf = new \App\Libraries\PdfGenerator(
-            'P',
-            'mm',
-            'A4',
-            true,
-            'UTF-8',
-            false
+        $frameTotal =
+            $invoice['frame_quantity']
+            *
+            $invoice['frame_price'];
+
+        $glassTotal =
+            $invoice['glass_quantity']
+            *
+            $invoice['glass_price'];
+
+        $data = [
+            'invoice' => $invoice,
+            'customer' => $customer,
+            'shop' => $shop,
+            'frameTotal' => $frameTotal,
+            'glassTotal' => $glassTotal
+        ];
+
+        $html = view(
+            'pdf/invoice_template',
+            $data
         );
 
-        $pdf->SetCreator('Optical Shop');
-        $pdf->SetAuthor('Optical Shop');
-        $pdf->SetTitle('Invoice');
+        $mpdf = \App\Libraries\MpdfGenerator::create();
 
-        $pdf->setPrintHeader(false);
-        $pdf->setPrintFooter(false);
+        $mpdf->WriteHTML($html);
 
-        $pdf->AddPage();
-        $pdf->SetFont('dejavusans', '', 10);
-
-        $html = "
-        <h1>Invoice</h1>
-
-        <h3>Shop Details</h3>
-
-        <b>{$shop['shop_name']}</b><br>
-        {$shop['address']}<br>
-        {$shop['phone']}<br>
-        {$shop['email']}<br>
-        GST: {$shop['gst_number']}<br><br>
-
-        <h3>Customer Details</h3>
-
-        {$customer['name']}<br>
-        {$customer['mobile']}<br>
-        {$customer['email']}<br><br>
-
-        <h3>Invoice Details</h3>
-
-        Invoice No:
-        {$invoice['invoice_number']}<br>
-
-        Date:
-        {$invoice['date']}<br>
-
-        Payment Status:
-        {$invoice['payment_status']}<br>
-
-        Payment Mode:
-        {$invoice['payment_mode']}<br><br>
-
-        <table border='1' cellpadding='5'>
-
-            <tr>
-                <th>Item</th>
-                <th>Qty</th>
-                <th>Price</th>
-            </tr>
-
-            <tr>
-                <td>{$invoice['frame_type']}</td>
-                <td>{$invoice['frame_quantity']}</td>
-                <td>{$invoice['frame_price']}</td>
-            </tr>
-
-            <tr>
-                <td>{$invoice['glass_type']}</td>
-                <td>{$invoice['glass_quantity']}</td>
-                <td>{$invoice['glass_price']}</td>
-            </tr>
-
-        </table>
-
-        <br>
-
-        Total:
-        {$invoice['total_amount']}<br>
-
-        Paid:
-        {$invoice['paid_amount']}<br>
-
-        Due:
-        {$invoice['due_amount']}
-        ";
-
-        $pdf->writeHTML($html);
-
-        $pdf->Output(
+        $mpdf->Output(
             'invoice_' . $invoiceId . '.pdf',
             'D'
         );
@@ -489,6 +489,7 @@ class InvoiceController extends ResourceController
     {
         $invoiceModel = new InvoiceModel();
         $customerModel = new CustomerModel();
+        $userModel = new UserModel();
 
         $invoices =
             $invoiceModel
@@ -506,6 +507,12 @@ class InvoiceController extends ResourceController
                 $customerModel
                 ->find(
                     $inv['customer_id']
+                );
+
+            $user =
+                $userModel
+                ->find(
+                    $inv['created_by']
                 );
 
             $data[] = [
@@ -586,7 +593,7 @@ class InvoiceController extends ResourceController
                     $inv['left_add'],
 
                 'created_by' =>
-                    $inv['created_by'] ?? 'Unknown'
+                    $inv['username'] ?? 'Unknown'
             ];
         }
 

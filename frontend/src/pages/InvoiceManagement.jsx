@@ -16,13 +16,13 @@ import {
 
 function InvoiceManagement() {
 
-  const formatInvoiceNumber = (invoice) => {
+  /*const formatInvoiceNumber = (invoice) => {
     if (!invoice) return "INV-000";
 
     return `INV-${String(
       invoice.invoice_id || 0
     ).padStart(3, "0")}`;
-  };
+  };*/
 
   const [invoices, setInvoices] =
     useState([]);
@@ -460,7 +460,7 @@ function InvoiceManagement() {
                       {/* INVOICE */}
                       <td className="px-6 py-5">
                         <div className="font-bold text-slate-800">
-                          {formatInvoiceNumber(item)}
+                          {item.invoice_number}
                         </div>
                       </td>
 

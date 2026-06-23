@@ -39,6 +39,11 @@ function Login() {
         res.data
       );
 
+      localStorage.setItem(
+        "user_id",
+        res.data.id
+      );
+
       // Save role
       localStorage.setItem(
         "role",

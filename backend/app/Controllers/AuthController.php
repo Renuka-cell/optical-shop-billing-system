@@ -41,6 +41,8 @@ class AuthController extends BaseController
 
         return $this->response->setJSON([
 
+            'id' => $user['id'],
+
             'username' => $user['username'],
 
             'role' => $user['role'],

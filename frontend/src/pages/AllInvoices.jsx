@@ -12,13 +12,13 @@ import {
 
 function AllInvoices() {
 
-  const formatInvoiceNumber = (invoice) => {
+  /*const formatInvoiceNumber = (invoice) => {
     if (!invoice) return "INV-000";
 
     return `INV-${String(
       invoice.invoice_id || 0
     ).padStart(3, "0")}`;
-  };
+  };*/
 
   const [invoices, setInvoices] =
     useState([]);
@@ -67,7 +67,10 @@ function AllInvoices() {
     }
   };
 
-  const downloadInvoice = async (invoiceId) => {
+  const downloadInvoice = async (
+      invoiceId,
+      invoiceNumber
+    ) => {
 
     try {
 
@@ -94,7 +97,7 @@ function AllInvoices() {
       link.href = fileURL;
 
       link.download =
-        `Invoice-${invoiceId}.pdf`;
+        `Invoice-${invoiceNumber}.pdf`;
 
       document.body.appendChild(link);
 
@@ -281,7 +284,7 @@ const totalPages =
                       </td>
 
                       <td className="px-4 py-4 font-semibold text-blue-700">
-                        {formatInvoiceNumber(invoice)}
+                        {invoice.invoice_number}
                       </td>
 
                       <td className="px-4 py-4">
@@ -347,7 +350,8 @@ const totalPages =
                           <button
                             onClick={() =>
                               downloadInvoice(
-                                invoice.invoice_id
+                                invoice.invoice_id,
+                                invoice.invoice_number
                               )
                             }
                             className="bg-green-100 hover:bg-green-200 text-green-700 p-2 rounded-xl"
