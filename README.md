@@ -194,18 +194,22 @@ billing_system_php
 │   │
 │   ├── public
 │   ├── writable
+│   ├── .env
 │   ├── composer.json
 │   ├── composer.lock
-│   └── spark
+│   ├── spark
+│   └── vendor
 │
 ├── frontend
 │   │
 │   ├── public
+│   │
 │   ├── src
 │   │   ├── components
 │   │   ├── pages
 │   │   ├── services
-│   │   └── assets
+│   │   ├── assets
+│   │   └── App.jsx
 │   │
 │   ├── package.json
 │   ├── package-lock.json
