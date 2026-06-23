@@ -593,7 +593,7 @@ class InvoiceController extends ResourceController
                     $inv['left_add'],
 
                 'created_by' =>
-                    $inv['username'] ?? 'Unknown'
+                    $user['username'] ?? 'Unknown'
             ];
         }
 
