@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import API from "../services/api";
 import toast from "react-hot-toast";
+import { Eye, EyeOff } from "lucide-react";
 
 function StaffManagement() {
 
@@ -32,6 +33,29 @@ function StaffManagement() {
   const [confirmNewPassword,
     setConfirmNewPassword] =
     useState("");
+
+  const validatePassword = (password) => {
+
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+
+    return regex.test(password);
+  };
+
+  const [showPassword, setShowPassword] =
+    useState(false);
+
+  const [showConfirmPassword,
+    setShowConfirmPassword] =
+    useState(false);
+
+  const [showNewPassword,
+    setShowNewPassword] =
+    useState(false);
+
+  const [showConfirmNewPassword,
+    setShowConfirmNewPassword] =
+    useState(false);
 
   // ==========================
   // FETCH STAFF
@@ -72,6 +96,27 @@ function StaffManagement() {
 
     try {
 
+      if (!username.trim()) {
+
+        toast.error("Username is required");
+        return;
+      }
+
+      if (!password.trim()) {
+
+        toast.error("Password is required");
+        return;
+      }
+
+      if (!validatePassword(password)) {
+
+        toast.error(
+          "Password must be 8-20 chars with uppercase, lowercase, number and special character"
+        );
+
+        return;
+      }
+
       if (
         password !== confirmPassword
       ) {
@@ -98,6 +143,8 @@ function StaffManagement() {
       setUsername("");
       setPassword("");
       setConfirmPassword("");
+      setShowPassword(false);
+      setShowConfirmPassword(false);
       fetchStaff();
 
     } catch (err) {
@@ -181,6 +228,9 @@ function StaffManagement() {
     }
   };
 
+
+  //RESET PASSWORD
+
   const resetPassword = async () => {
 
     try {
@@ -189,6 +239,15 @@ function StaffManagement() {
 
         toast.error(
           "Password is required"
+        );
+
+        return;
+      }
+
+      if (!validatePassword(newPassword)) {
+
+        toast.error(
+          "Password must be 8-20 chars with uppercase, lowercase, number and special character"
         );
 
         return;
@@ -222,6 +281,9 @@ function StaffManagement() {
       setNewPassword("");
 
       setConfirmNewPassword("");
+
+      setShowNewPassword(false);
+      setShowConfirmNewPassword(false);
 
     } catch (err) {
 
@@ -260,7 +322,7 @@ function StaffManagement() {
             Create Staff
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
 
             <input
               type="text"
@@ -274,29 +336,81 @@ function StaffManagement() {
               className="border rounded-xl p-3"
             />
 
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) =>
-                setPassword(
-                  e.target.value
-                )
-              }
-              className="border rounded-xl p-3"
-            />
+            <div className="relative">
 
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) =>
-                setConfirmPassword(
-                  e.target.value
-                )
-              }
-              className="border rounded-xl p-3"
-            />
+              <input
+                type={
+                  showPassword
+                    ? "text"
+                    : "password"
+                }
+                placeholder="Password"
+                value={password}
+                onChange={(e) =>
+                  setPassword(
+                    e.target.value
+                  )
+                }
+                className="border rounded-xl p-3 w-full pr-12"
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowPassword(
+                    !showPassword
+                  )
+                }
+                className="absolute right-3 top-3"
+              >
+
+                {
+                  showPassword
+                    ? <EyeOff size={18} />
+                    : <Eye size={18} />
+                }
+
+              </button>
+
+            </div>
+
+            <div className="relative">
+
+              <input
+                type={
+                  showConfirmPassword
+                    ? "text"
+                    : "password"
+                }
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) =>
+                  setConfirmPassword(
+                    e.target.value
+                  )
+                }
+                className="border rounded-xl p-3 w-full pr-12"
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowConfirmPassword(
+                    !showConfirmPassword
+                  )
+                }
+                className="absolute right-3 top-3"
+              >
+
+                {
+                  showConfirmPassword
+                    ? <EyeOff size={18} />
+                    : <Eye size={18} />
+                }
+
+              </button>
+
+            </div>
 
           </div>
 
@@ -490,29 +604,81 @@ function StaffManagement() {
 
               <div className="space-y-4">
 
-                <input
-                  type="password"
-                  placeholder="Enter New Password"
-                  value={newPassword}
-                  onChange={(e) =>
-                    setNewPassword(
-                      e.target.value
-                    )
-                  }
-                  className="w-full border rounded-xl p-3"
-                />
+                <div className="relative">
 
-                <input
-                  type="password"
-                  placeholder="Confirm New Password"
-                  value={confirmNewPassword}
-                  onChange={(e) =>
-                    setConfirmNewPassword(
-                      e.target.value
-                    )
-                  }
-                  className="w-full border rounded-xl p-3"
-                />
+                  <input
+                    type={
+                      showNewPassword
+                        ? "text"
+                        : "password"
+                    }
+                    placeholder="Enter New Password"
+                    value={newPassword}
+                    onChange={(e) =>
+                      setNewPassword(
+                        e.target.value
+                      )
+                    }
+                    className="w-full border rounded-xl p-3 pr-12"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowNewPassword(
+                        !showNewPassword
+                      )
+                    }
+                    className="absolute right-3 top-3"
+                  >
+
+                    {
+                      showNewPassword
+                        ? <EyeOff size={18} />
+                        : <Eye size={18} />
+                    }
+
+                  </button>
+
+                </div>
+
+                <div className="relative">
+
+                  <input
+                    type={
+                      showConfirmNewPassword
+                        ? "text"
+                        : "password"
+                    }
+                    placeholder="Confirm New Password"
+                    value={confirmNewPassword}
+                    onChange={(e) =>
+                      setConfirmNewPassword(
+                        e.target.value
+                      )
+                    }
+                    className="w-full border rounded-xl p-3 pr-12"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowConfirmNewPassword(
+                        !showConfirmNewPassword
+                      )
+                    }
+                    className="absolute right-3 top-3"
+                  >
+
+                    {
+                      showConfirmNewPassword
+                        ? <EyeOff size={18} />
+                        : <Eye size={18} />
+                    }
+
+                  </button>
+
+                </div>
 
               </div>
 

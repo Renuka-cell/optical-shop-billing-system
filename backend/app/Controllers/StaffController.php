@@ -41,6 +41,16 @@ class StaffController extends BaseController
                 ]);
         }
 
+        if (!$this->validatePassword($password))
+        {
+            return $this->response
+                ->setStatusCode(400)
+                ->setJSON([
+                    'error' =>
+                    'Password must contain uppercase, lowercase, number and special character'
+                ]);
+        }
+
         $userModel->insert([
             'username' => $username,
             'password' => $password,
@@ -133,6 +143,16 @@ class StaffController extends BaseController
         $password =
             trim($data['password'] ?? '');
 
+        if (!$this->validatePassword($password))
+        {
+            return $this->response
+                ->setStatusCode(400)
+                ->setJSON([
+                    'error' =>
+                    'Password must contain uppercase, lowercase, number and special character'
+                ]);
+        }
+
         $userModel->update($id, [
             'password' => $password
         ]);
@@ -141,5 +161,17 @@ class StaffController extends BaseController
             ->setJSON([
                 'success' => true
             ]);
+    }
+
+    // =========================
+    // PASSWORD VALIDATION
+    // =========================
+
+    private function validatePassword($password)
+    {
+        return preg_match(
+            '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,20}$/',
+            $password
+        );
     }
 }

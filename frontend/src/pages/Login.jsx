@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import toast from "react-hot-toast";
+import { Eye, EyeOff } from "lucide-react";
 
 function Login() {
 
@@ -12,6 +13,9 @@ function Login() {
     password: "",
   });
 
+  const [showPassword, setShowPassword] =
+    useState(false);
+
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -20,6 +24,18 @@ function Login() {
   };
 
   const handleLogin = async () => {
+
+    if (!form.username.trim()) {
+
+      toast.error("Username is required");
+      return;
+    }
+
+    if (!form.password.trim()) {
+
+      toast.error("Password is required");
+      return;
+    }
 
     try {
 
@@ -157,13 +173,41 @@ function Login() {
               Password
             </label>
 
-            <input
+            {/*<input
               type="password"
               name="password"
               placeholder="Enter your password"
               onChange={handleChange}
               className="w-full bg-white/10 border border-white/10 text-white placeholder:text-slate-400 rounded-2xl px-5 py-4 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 transition-all duration-300"
-            />
+            />*/}
+
+            <div className="relative">
+
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Enter your password"
+                onChange={handleChange}
+                className="w-full bg-white/10 border border-white/10 text-white placeholder:text-slate-400 rounded-2xl px-5 py-4 pr-14 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 transition-all duration-300"
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowPassword(!showPassword)
+                }
+                className="absolute right-4 top-4 text-slate-300"
+              >
+
+                {
+                  showPassword
+                    ? <EyeOff size={20} />
+                    : <Eye size={20} />
+                }
+
+              </button>
+
+            </div>
 
           </div>
 
