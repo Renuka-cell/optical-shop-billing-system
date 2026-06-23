@@ -211,7 +211,7 @@ billing_system_php
 │   ├── package-lock.json
 │   └── vite.config.js
 │
-└── .gitignore
+└── database
 ```
 
 ---
