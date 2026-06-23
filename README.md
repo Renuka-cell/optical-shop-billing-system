@@ -221,7 +221,7 @@ billing_system_php
 ### Clone Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Renuka-cell/optical-shop-billing-system.git
 cd billing_system_php
 ```
 
